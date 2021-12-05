@@ -21,7 +21,7 @@ const names = benchFiles.map(file => file.replace('.bench.json', ''))
 const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]))
 const zipped = zip([names, benchTimes])
 
-const scale = chroma.scale('Spectral')
+const scale = chroma.scale('Accent')
   .domain([0, zipped.length])
   .padding(1)
 
