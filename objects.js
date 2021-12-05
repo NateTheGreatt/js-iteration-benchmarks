@@ -27,7 +27,7 @@ for (let j = 0; j < sizes.length; j++) {
     }
     timer.tick()
   }
-  results.push({ size, time: timer.avg() })
+  results.push({ size, time: timer.end() })
 }
 
 const resultsFile = path.join('results',process.argv[1].split('/').at(-1).replace('.js', '.bench.json'))

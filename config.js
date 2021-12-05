@@ -1,5 +1,5 @@
 export const size = 100000
-export const ticks = 100
+export const ticks = 500
 export const sizes = [
   50,
   100,

@@ -16,7 +16,7 @@ export const Timer = () => {
       time.then = time.now
       time.ticks++
     },
-    avg: () => time.elapsed / time.ticks
+    end: () => time.elapsed / time.ticks
   }
 
   return time
