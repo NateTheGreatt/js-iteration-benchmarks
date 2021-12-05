@@ -1,6 +1,6 @@
-import ChartJSImage from 'chart.js-image'
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas'
+import chroma from 'chroma-js'
 import { sizes } from './config.js'
-import path from 'path'
 import fs from 'fs'
 
 const directoryPath = process.argv[1].split('/').slice(0, -1).join('/') + '/results'
@@ -18,44 +18,101 @@ const benchTimes = benchFiles
 const names = benchFiles.map(file => file.replace('.bench.json', ''))
 
 const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]))
+const zipped = zip([names, benchTimes])
 
-const datasets = zip([names, benchTimes])
-  .map(([label, data], i) => ({ label, data, fill: false, pointRadius: 1, borderColor: `rgb(${i*15}, ${255 - i*40}, ${120+i*10})`, backgroundColor: `rgb(${i*15}, ${255 - i*40}, ${120+i*10})`, borderWidth: 1 }))
+const scale = chroma.scale('Spectral')
+  .domain([0, zipped.length])
+  .padding(1)
 
+let min = Number.MAX_SAFE_INTEGER
+let max = 0
 
-console.log(datasets)
+const datasets = zipped.map(([label, data], i) => {
+  const color = scale(i).hex()
+  data.forEach(d => {
+    if (d < min) min = d
+    if (d > max) max = d
+  })
+  return {
+    label,
+    data,
+    fill: false, 
+    pointRadius: 2, 
+    borderColor: color, 
+    backgroundColor: color, 
+    borderWidth: 2
+  }
+})
 
-const lineChart = ChartJSImage().chart({
+min = (Math.floor(min * 10000) / 10000)
+max = (Math.ceil(max * 10000) / 10000)
+
+const backgroundColor = '#1A202C'
+const textColor = '#ffffffeb'
+const gridColor = '#2D3748'
+
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ 
+  type: 'png', 
+  backgroundColour: backgroundColor,
+  width: 800, 
+  height: 300 
+})
+
+const lineChart = await chartJSNodeCanvas.renderToBuffer({
   type: 'line',
   data: {
     labels: sizes,
     datasets
   },
   options: {
-    title: {
-      display: true,
-      text: 'data iteration performance'
+    color: textColor,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Data Iteration Performance',
+        color: textColor
+      },
     },
     scales: {
-      xAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: 'size'
-          },
+      xAxes: {
+        title: {
+          display: true,
+          text: 'Size',
+          color: textColor
+        },
+        ticks: {
+          color: textColor
+        },
+        grid: {
+          color: gridColor,
+          borderColor: gridColor,
+          tickColor: gridColor,
+          borderWidth: 1
         }
-      ],
-      yAxes: [
-        {
-          type: 'logarithmic',
-          scaleLabel: {
-            display: true,
-            labelString: 'time'
-          },
-        }
-      ]
+      },
+      yAxes: {
+        type: 'logarithmic',
+        title: {
+          display: true,
+          text: 'Time',
+          color: textColor
+        },
+        min,
+        max,
+        grid: {
+          color: gridColor,
+          borderColor: gridColor,
+          tickColor: gridColor,
+          borderWidth: 1
+        },
+        ticks: {
+          color: textColor,
+          includeBounds: true,
+          callback: value => `${value.toFixed(2)}s`
+        },
+      }
     }
   }
 })
 
-lineChart.toFile('chart.png')
+fs.writeFileSync('chart.png', lineChart)

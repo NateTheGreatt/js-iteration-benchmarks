@@ -1,4 +1,4 @@
-import { exec, execSync, spawn, spawnSync } from 'child_process'
+import { spawn } from 'child_process'
 
 const files = [
   'SoA-array.js',
@@ -13,4 +13,3 @@ const files = [
 files.forEach(file => {
   spawn('node', [file], { stdio: 'inherit' })
 })
-
