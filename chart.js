@@ -1,4 +1,5 @@
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas'
+import Numbers from 'human-readable-numbers'
 import chroma from 'chroma-js'
 import { sizes } from './config.js'
 import fs from 'fs'
@@ -81,7 +82,10 @@ const lineChart = await chartJSNodeCanvas.renderToBuffer({
           color: textColor
         },
         ticks: {
-          color: textColor
+          color: textColor,
+          callback: function (value) {
+            return Numbers.toHumanString(this.getLabelForValue(value))
+          }
         },
         grid: {
           color: gridColor,
