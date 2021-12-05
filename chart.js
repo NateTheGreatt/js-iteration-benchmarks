@@ -109,7 +109,7 @@ const lineChart = await chartJSNodeCanvas.renderToBuffer({
           color: textColor,
           includeBounds: true,
           callback: value => `${value.toFixed(2)}s`
-        },
+        }
       }
     }
   }
