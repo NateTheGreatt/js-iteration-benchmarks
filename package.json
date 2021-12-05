@@ -8,5 +8,8 @@
   },
   "author": "Nathaniel Martin",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "chart.js-image": "^6.0.3"
+  }
 }

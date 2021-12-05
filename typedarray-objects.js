@@ -1,3 +1,4 @@
+import path from 'path'
 import fs from 'fs'
 import { size, sizes, ticks } from './config.js'
 import { Timer } from './Timer.js'
@@ -31,6 +32,6 @@ for (let j = 0; j < sizes.length; j++) {
   results.push({ size, time: timer.avg() })
 }
 
-const resultsFile = process.argv[1].split('/').at(-1).replace('.js', '.json')
+const resultsFile = path.join('results',process.argv[1].split('/').at(-1).replace('.js', '.bench.json'))
 
 fs.writeFileSync(resultsFile, JSON.stringify(results,null,2))

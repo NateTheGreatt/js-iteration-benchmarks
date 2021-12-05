@@ -1,0 +1,1 @@
+<img src='https://raw.githubusercontent.com/NateTheGreatt/js-iteration-benchmarks/main/chart.png' />https://raw.githubusercontent.com/NateTheGreatt/js-iteration-benchmarks/main/chart.png
