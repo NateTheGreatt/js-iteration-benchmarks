@@ -1,1 +1,1 @@
-<img src='https://raw.githubusercontent.com/NateTheGreatt/js-iteration-benchmarks/main/chart.png' />https://raw.githubusercontent.com/NateTheGreatt/js-iteration-benchmarks/main/chart.png
+<img src='https://github.com/NateTheGreatt/js-iteration-benchmarks/raw/main/chart.png' />
