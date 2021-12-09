@@ -1,13 +1,24 @@
 {
-  "name": "iterperf",
+  "name": "js-iteration-benchmarks",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js && node chart.js"
   },
-  "author": "Nathaniel Martin",
-  "license": "ISC",
+  "author": {
+    "name": "Nathaniel Martin",
+    "email": "mrtn.nathaniel@gmail.com",
+    "url": "https://github.com/NateTheGreatt"
+  },
+  "contributors": [
+    {
+      "name": "Randy Lebeau",
+      "email": "randylebeau@gmail.com",
+      "url": "https://github.com/SupremeTechnopriest"
+    }
+  ],  
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "chart.js": "^3.6.1",

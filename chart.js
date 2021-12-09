@@ -4,44 +4,56 @@ import chroma from 'chroma-js'
 import { sizes } from './config.js'
 import fs from 'fs'
 
-const directoryPath = process.argv[1].split('/').slice(0, -1).join('/') + '/results'
-console.log(directoryPath)
+const results = JSON.parse(fs.readFileSync('./results.json', { encoding: 'utf-8' }))
 
-const benchFiles = fs
-  .readdirSync(directoryPath)
-  .filter(file => file.includes('.json'))
+const names = Object.keys(results)
+const benchHz = names.map(name => results[name].map(({hz})=>hz))
+const benchMs = names.map(name => results[name].map(({ms})=>ms))
 
-const benchTimes = benchFiles
-  .map(file => `results/${file}`)
-  .map(filePath => JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' })))
-  .map(results => results.map(r => r.time))
-
-const names = benchFiles.map(file => file.replace('.bench.json', ''))
+// console.log(benchHz)
 
 const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]))
-const zipped = zip([names, benchTimes])
+const hzZipped = zip([names, benchHz])
+const msZipped = zip([names, benchMs])
 
 const scale = chroma.scale('Accent')
-  .domain([0, zipped.length])
+  .domain([0, hzZipped.length])
   .padding(1)
 
 let min = Number.MAX_SAFE_INTEGER
 let max = 0
 
-const datasets = zipped.map(([label, data], i) => {
+const msDatasets = msZipped.map(([label, ms], i) => {
   const color = scale(i).hex()
-  data.forEach(d => {
+  ms.forEach(d => {
     if (d < min) min = d
     if (d > max) max = d
   })
   return {
     label,
-    data,
+    data: ms,
     fill: false, 
-    pointRadius: 2, 
+    pointRadius: 1, 
     borderColor: color, 
     backgroundColor: color, 
-    borderWidth: 2
+    borderWidth: 1
+  }
+})
+
+const hzDatasets = hzZipped.map(([label, hz], i) => {
+  const color = scale(i).hex()
+  hz.forEach(d => {
+    if (d < min) min = d
+    if (d > max) max = d
+  })
+  return {
+    label,
+    data: hz,
+    fill: false, 
+    pointRadius: 1,
+    borderColor: color, 
+    backgroundColor: color, 
+    borderWidth: 1
   }
 })
 
@@ -59,11 +71,11 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({
   height: 300 
 })
 
-const lineChart = await chartJSNodeCanvas.renderToBuffer({
+const msChart = await chartJSNodeCanvas.renderToBuffer({
   type: 'line',
   data: {
     labels: sizes,
-    datasets
+    datasets: msDatasets
   },
   options: {
     color: textColor,
@@ -101,8 +113,8 @@ const lineChart = await chartJSNodeCanvas.renderToBuffer({
           text: 'Time',
           color: textColor
         },
-        min,
-        max,
+        // min,
+        // max,
         grid: {
           color: gridColor,
           borderColor: gridColor,
@@ -119,4 +131,67 @@ const lineChart = await chartJSNodeCanvas.renderToBuffer({
   }
 })
 
-fs.writeFileSync('chart.png', lineChart)
+fs.writeFileSync('chart-ms.png', msChart)
+
+
+const hzChart = await chartJSNodeCanvas.renderToBuffer({
+  type: 'bar',
+  data: {
+    labels: sizes,
+    datasets: hzDatasets
+  },
+  options: {
+    color: textColor,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Data Iteration Performance',
+        color: textColor
+      },
+    },
+    scales: {
+      xAxes: {
+        title: {
+          display: true,
+          text: 'Size',
+          color: textColor
+        },
+        ticks: {
+          color: textColor,
+          callback: function (value) {
+            return Numbers.toHumanString(this.getLabelForValue(value))
+          }
+        },
+        grid: {
+          color: gridColor,
+          borderColor: gridColor,
+          tickColor: gridColor,
+          borderWidth: 1
+        }
+      },
+      yAxes: {
+        type: 'logarithmic',
+        title: {
+          display: true,
+          text: 'Ops/s',
+          color: textColor
+        },
+        // min,
+        // max,
+        grid: {
+          color: gridColor,
+          borderColor: gridColor,
+          tickColor: gridColor,
+          borderWidth: 1
+        },
+        ticks: {
+          color: textColor,
+          includeBounds: true,
+          // callback: value => `${value.toFixed(2)}`
+        }
+      }
+    }
+  }
+})
+
+fs.writeFileSync('chart-hz.png', hzChart)
